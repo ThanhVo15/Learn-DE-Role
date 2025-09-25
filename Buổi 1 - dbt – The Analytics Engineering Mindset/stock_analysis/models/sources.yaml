@@ -1,0 +1,37 @@
+version: 2
+
+sources:
+  - name: raw_data  # Tên của nhóm source
+    schema: main     # Schema trong DuckDB nơi dữ liệu sẽ được load
+    tables:
+      - name: trades
+        description: "Raw trade data from the exchange."
+        columns:
+          - name: trade_id
+            description: "Primary key for trades."
+            tests:
+              - unique
+              - not_null
+          - name: security_id
+            description: "Foreign key to the securities table."
+            tests: 
+              - not_null
+              - relationships:
+                  to: source('raw_data', 'securities')
+                  field: id
+          - name: trade_date
+          - name: price
+          - name: volume
+            tests:
+              - assert_value_is_not_zero
+
+      - name: securities
+        description: "List of all securities."
+        columns:
+          - name: id
+            description: "Primary key for securities."
+            tests:
+              - unique
+              - not_null
+          - name: ticker_symbol
+          - name: company_name
